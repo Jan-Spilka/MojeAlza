@@ -1,0 +1,67 @@
+﻿using Core.Interfaces;
+using Core.Models;
+
+namespace Infrastructure.Repositories
+{
+    public class MockProductsRepository : IProductsRepository
+    {
+        private readonly List<Product> products = new()
+        {
+            new Product { Id = 1, Name = "Ibanez RG 350DX", Price = 399.99m, ImgUri = "mock_laptop.jpg", Description = "Elektrická kytara." },
+            new Product { Id = 2, Name = "Line 6 Helix Rack", Price = 1199.99m, ImgUri = "mock_phone.jpg", Description = "Kytarový, digitální multi-efektový procesor montovatelný do 19'' racku." }
+        };
+
+        /// <summary>
+        /// Gets list of products in repository.
+        /// </summary>
+        public async Task<List<Product>> GetProducts()
+        {
+            return await Task.FromResult(this.products);
+        }
+
+        /// <summary>
+        /// Gets list of products in repository by page.
+        /// </summary>
+        /// <param name="page">The page count.</param>
+        /// <param name="pageSize">The page size.</param>
+        public async Task<List<Product>> GetProductsPaged(int page, int pageSize)
+        {
+            return await Task.FromResult(this.products
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList());
+        }
+
+        /// <summary>
+        /// Gets product with specified unique identifier.
+        /// </summary>
+        public async Task<Product?> GetProductById(int id)
+        {
+            return await Task.FromResult(this.products.FirstOrDefault(x => x.Id == id));
+        }
+
+        /// <summary>
+        /// Gets products count.
+        /// </summary>
+        public async Task<int> GetProductsCount()
+        {
+            return await Task.FromResult(this.products.Count);
+        }
+
+        /// <summary>
+        /// Updates product's description.
+        /// </summary>
+        /// <param name="id">The product unique identifier.</param>
+        /// <param name="description">The new description.</param>
+        public async Task<bool> UpdateProduct(Product product)
+        {
+            Product? existingProduct = this.products.FirstOrDefault(x => x.Id == product.Id);
+
+            if (existingProduct == null)
+                return false;
+
+            existingProduct.Description = product.Description;
+            return await Task.FromResult(true);
+        }
+    }
+}
