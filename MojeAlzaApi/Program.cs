@@ -28,7 +28,10 @@ builder.Services.AddScoped<IProductsService, ProductsService>();
 #if TEST
     builder.Services.AddScoped<IProductsRepository, MockProductsRepository>();
 #else
-    builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions => sqlOptions.MigrationsAssembly("Infrastructure")));
+
     builder.Services.AddScoped<IProductsRepository, ProductsRepository>();
 #endif
 

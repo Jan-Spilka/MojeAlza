@@ -1,15 +1,12 @@
 ﻿using Core.Interfaces;
 using Core.Models;
+using Infrastructure.Data;
 
 namespace Infrastructure.Repositories
 {
     public class MockProductsRepository : IProductsRepository
     {
-        private readonly List<Product> products = new()
-        {
-            new Product { Id = 1, Name = "Ibanez RG 350DX", Price = 399.99m, ImgUri = "mock_laptop.jpg", Description = "Elektrická kytara." },
-            new Product { Id = 2, Name = "Line 6 Helix Rack", Price = 1199.99m, ImgUri = "mock_phone.jpg", Description = "Kytarový, digitální multi-efektový procesor montovatelný do 19'' racku." }
-        };
+        private readonly List<Product> products = InitialDataSeeder.GetProducts().ToList();
 
         /// <summary>
         /// Gets list of products in repository.
