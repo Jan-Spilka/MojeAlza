@@ -13,13 +13,15 @@ namespace Application.DataTransferObjects
         /// <summary>
         /// The product name.
         /// </summary>
-        [Required]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Product name is required.")]
+        [StringLength(256, ErrorMessage = "Product name cannot be longer than 256 characters.")]
         public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// The product image resource identificator.
         /// </summary>
-        [Required]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Product image uri is required.")]
+        [StringLength(256, ErrorMessage = "Product image uri cannot be longer than 256 characters.")]
         [Url]
         public string ImgUri { get; set; } = string.Empty;
 
