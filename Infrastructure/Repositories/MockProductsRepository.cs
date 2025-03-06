@@ -9,6 +9,11 @@ namespace Infrastructure.Repositories
         private readonly List<Product> products = InitialDataSeeder.GetProducts().ToList();
 
         /// <summary>
+        /// Gets products stored in repository directly.
+        /// </summary>
+        public List<Product> Products => this.products;
+        
+        /// <summary>
         /// Gets list of products in repository.
         /// </summary>
         public async Task<List<Product>> GetProducts()
@@ -59,6 +64,15 @@ namespace Infrastructure.Repositories
 
             existingProduct.Description = product.Description;
             return await Task.FromResult(true);
+        }
+
+        /// <summary>
+        /// Resets the data to its initial state.
+        /// </summary>
+        public void ResetData()
+        {
+            this.products.Clear();
+            this.products.AddRange(InitialDataSeeder.GetProducts());
         }
     }
 }
