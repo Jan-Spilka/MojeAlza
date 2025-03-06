@@ -11,7 +11,7 @@
         public PageResultDTO(List<T> items, int itemsCountTotal, int pageSize)
         {
             this.Items = items;
-            this.ItemCountTotal = itemsCountTotal;
+            this.ItemsCountTotal = itemsCountTotal;
             this.PagesCount = (int)Math.Ceiling(itemsCountTotal / (double)pageSize);
         }
 
@@ -23,7 +23,7 @@
         /// <summary>
         /// Get all items count.
         /// </summary>
-        public int ItemCountTotal { get; }
+        public int ItemsCountTotal { get; }
 
         /// <summary>
         /// Gets all pages count.
