@@ -68,7 +68,7 @@ namespace Application.Services
         /// </summary>
         /// <param name="id">The product unique identifier.</param>
         /// <param name="description">The new description.</param>
-        public async Task<bool> UpdateProductDescription(int id, string description)
+        public async Task<bool> UpdateProductDescription(int id, string? description)
         {
             Product? product = await this.repository.GetProductById(id);
 
