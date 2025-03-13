@@ -1,6 +1,7 @@
 ﻿using Application.DataTransferObjects;
 using Application.Interfaces;
 using Asp.Versioning;
+using Core.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers.v2
@@ -28,12 +29,12 @@ namespace Api.Controllers.v2
         /// <param name="pageSize">The page size</param>
         /// <param name="cancellationToken">The operation cancellation token.</param>
         [HttpGet]
-        public async Task<ActionResult<PageResultDTO<ProductDTO>>> GetProducts(int page = 1, int pageSize = 10, CancellationToken cancellationToken = default)
+        public async Task<ActionResult<PaginatedList<ProductDTO>>> GetProducts(int page = 1, int pageSize = 10, CancellationToken cancellationToken = default)
         {
             if (page < 1 || pageSize < 1)
                 return this.BadRequest("Page and PageSize must be greater than 0.");
 
-            PageResultDTO<ProductDTO> productsPaged = await this.productsService.GetProductsPaged(page, pageSize, cancellationToken);
+            PaginatedList<ProductDTO> productsPaged = await this.productsService.GetProductsPaged(page, pageSize, cancellationToken);
             return this.Ok(productsPaged);
         }
     }

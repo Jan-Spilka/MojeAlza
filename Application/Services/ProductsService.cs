@@ -38,17 +38,17 @@ namespace Application.Services
         /// <summary>
         /// Gets products in repository by specified page.
         /// </summary>
-        /// <param name="page">The page count.</param>
+        /// <param name="pageIndex">The page index.</param>
         /// <param name="pageSize">The page size</param>
         /// <param name="cancellationToken">The operation cancellation token.</param>
-        public async Task<PageResultDTO<ProductDTO>> GetProductsPaged(int page, int pageSize, CancellationToken cancellationToken)
+        public async Task<PaginatedList<ProductDTO>> GetProductsPaged(int pageIndex, int pageSize, CancellationToken cancellationToken)
         {
-            List<Product> products = await this.repository.GetProductsPaged(page, pageSize, cancellationToken);
+            List<Product> products = await this.repository.GetProductsPaged(pageIndex, pageSize, cancellationToken);
             List<ProductDTO> productDTOs = this.mapper.Map<IEnumerable<ProductDTO>>(products).ToList();
 
             int productsCount = await this.repository.GetProductsCount(cancellationToken);
             
-            return new PageResultDTO<ProductDTO>(productDTOs, productsCount, pageSize);
+            return new PaginatedList<ProductDTO>(productDTOs, productsCount, pageIndex, pageSize);
         }
 
         /// <summary>
