@@ -16,7 +16,7 @@ namespace Infrastructure.Repositories
         /// <summary>
         /// Gets list of products in repository.
         /// </summary>
-        public async Task<List<Product>> GetProducts()
+        public async Task<List<Product>> GetProducts(CancellationToken cancellationToken)
         {
             return await Task.FromResult(this.products);
         }
@@ -26,7 +26,7 @@ namespace Infrastructure.Repositories
         /// </summary>
         /// <param name="page">The page count.</param>
         /// <param name="pageSize">The page size.</param>
-        public async Task<List<Product>> GetProductsPaged(int page, int pageSize)
+        public async Task<List<Product>> GetProductsPaged(int page, int pageSize, CancellationToken cancellationToken)
         {
             return await Task.FromResult(this.products
                 .Skip((page - 1) * pageSize)
@@ -37,7 +37,7 @@ namespace Infrastructure.Repositories
         /// <summary>
         /// Gets product with specified unique identifier.
         /// </summary>
-        public async Task<Product?> GetProductById(int id)
+        public async Task<Product?> GetProductById(int id, CancellationToken cancellationToken)
         {
             return await Task.FromResult(this.products.FirstOrDefault(x => x.Id == id));
         }
@@ -45,7 +45,7 @@ namespace Infrastructure.Repositories
         /// <summary>
         /// Gets products count.
         /// </summary>
-        public async Task<int> GetProductsCount()
+        public async Task<int> GetProductsCount(CancellationToken cancellationToken)
         {
             return await Task.FromResult(this.products.Count);
         }
@@ -55,7 +55,7 @@ namespace Infrastructure.Repositories
         /// </summary>
         /// <param name="id">The product unique identifier.</param>
         /// <param name="description">The new description.</param>
-        public async Task<bool> UpdateProduct(Product product)
+        public async Task<bool> UpdateProduct(Product product, CancellationToken cancellationToken)
         {
             Product? existingProduct = this.products.FirstOrDefault(x => x.Id == product.Id);
 

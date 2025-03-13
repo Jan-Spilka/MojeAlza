@@ -24,20 +24,23 @@ namespace Api.Controllers.v1
         /// <summary>
         /// Gets all products.
         /// </summary>
+        /// <param name="cancellationToken">The operation cancellation token.</param>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProducts(CancellationToken cancellationToken)
         {
-            List<ProductDTO> products = await this.productsService.GetProducts();
+            List<ProductDTO> products = await this.productsService.GetProducts(cancellationToken);
             return this.Ok(products);
         }
 
         /// <summary>
         /// Gets product with specified unique identifier.
         /// </summary>
+        /// <param name="id">The product unique identifier.</param>
+        /// <param name="cancellationToken">The operation cancellation token.</param>
         [HttpGet("{id}")]
-        public async Task<ActionResult<ProductDTO>> GetProduct(int id)
+        public async Task<ActionResult<ProductDTO>> GetProduct(int id, CancellationToken cancellationToken)
         {
-            ProductDTO? product = await this.productsService.GetProduct(id);
+            ProductDTO? product = await this.productsService.GetProduct(id, cancellationToken);
 
             if (product == null)
                 return this.NotFound(new { Message = $"Product with ID '{id}' not found" });
@@ -49,12 +52,12 @@ namespace Api.Controllers.v1
         /// Updates product's description.
         /// </summary>
         [HttpPatch("{id}")]
-        public async Task<IActionResult> UpdateProductDescription(int id, [FromBody] ProductDescriptionDTO dto)
+        public async Task<IActionResult> UpdateProductDescription(int id, [FromBody] ProductDescriptionDTO dto, CancellationToken cancellationToken)
         {
             if (!this.ModelState.IsValid)
                 return this.BadRequest(this.ModelState);
 
-            bool success = await this.productsService.UpdateProductDescription(id, dto.Description);
+            bool success = await this.productsService.UpdateProductDescription(id, dto.Description, cancellationToken);
 
             if (!success)
                 return this.NotFound();

@@ -50,7 +50,7 @@ namespace Tests
             // For bigger data samples, we probably would want to specify just some Ids to check
             foreach (Product expectedProduct in InitialDataSeeder.GetProducts())
             {
-                ProductDTO? actualProduct = await this.service.GetProduct(expectedProduct.Id);
+                ProductDTO? actualProduct = await this.service.GetProduct(expectedProduct.Id, CancellationToken.None);
 
                 Assert.That(actualProduct, Is.Not.Null, "Product was not found.");
                 CheckProductData(actualProduct, expectedProduct);
@@ -60,7 +60,7 @@ namespace Tests
         [Test]
         public async Task GetProduct_ShouldReturnNoProduct()
         {
-            ProductDTO? nonExistentProduct = await this.service.GetProduct(-1);
+            ProductDTO? nonExistentProduct = await this.service.GetProduct(-1, CancellationToken.None);
             Assert.That(nonExistentProduct, Is.Null, "Product with ID = -1 should not be found.");
         }
 
@@ -70,7 +70,7 @@ namespace Tests
             int page = 5;
             int pageSize = 7;
 
-            PageResultDTO<ProductDTO> productsPageResult = await this.service.GetProductsPaged(page, pageSize);
+            PageResultDTO<ProductDTO> productsPageResult = await this.service.GetProductsPaged(page, pageSize, CancellationToken.None);
             Assert.Multiple(() =>
             {
                 Assert.That(productsPageResult, Is.Not.Null, "Page result should not be null.");
@@ -102,7 +102,7 @@ namespace Tests
             int page = 10;
             int pageSize = 6;
 
-            PageResultDTO<ProductDTO> productsPageResult = await this.service.GetProductsPaged(page, pageSize);
+            PageResultDTO<ProductDTO> productsPageResult = await this.service.GetProductsPaged(page, pageSize, CancellationToken.None);
 
             Assert.That(productsPageResult, Is.Not.Null, "Page result should not be null.");
             Assert.Multiple(() =>
@@ -119,7 +119,7 @@ namespace Tests
             int page = 9;
             int pageSize = 6;
 
-            PageResultDTO<ProductDTO> productsPageResult = await this.service.GetProductsPaged(page, pageSize);
+            PageResultDTO<ProductDTO> productsPageResult = await this.service.GetProductsPaged(page, pageSize, CancellationToken.None);
 
             Assert.That(productsPageResult, Is.Not.Null, "Page result should not be null.");
             Assert.Multiple(() =>
@@ -147,7 +147,7 @@ namespace Tests
         [Test]
         public async Task GetProducts_ShouldReturnAllProducts()
         {
-            List<ProductDTO> products = await this.service.GetProducts();
+            List<ProductDTO> products = await this.service.GetProducts(CancellationToken.None);
             Product[] expectedProducts = InitialDataSeeder.GetProducts();
 
             Assert.That(products.Count, Is.EqualTo(expectedProducts.Length), "Products count does not match.");
@@ -171,7 +171,7 @@ namespace Tests
 
             try
             {
-                bool updateDescriptionResult = await this.service.UpdateProductDescription(productId, newDescription);
+                bool updateDescriptionResult = await this.service.UpdateProductDescription(productId, newDescription, CancellationToken.None);
                 Assert.That(updateDescriptionResult, Is.True, "Expected UpdateProductDescription to return true, indicating a successful update.");
 
                 Product updatedProduct = this.repository.Products.Single(x => x.Id == productId);
@@ -202,7 +202,7 @@ namespace Tests
                     warningLogWritten = true;
                 }
 
-                bool updateDescriptionResult = await WithLogMessageHandling(() => this.service.UpdateProductDescription(productId, "Test"), OnMessageLog);
+                bool updateDescriptionResult = await WithLogMessageHandling(() => this.service.UpdateProductDescription(productId, "Test", CancellationToken.None), OnMessageLog);
 
                 Assert.That(updateDescriptionResult, Is.False, "Expected UpdateProductDescription to return false, indicating that update operation could not be done.");
                 Assert.That(warningLogWritten, Is.True, "Warning message was not logged.");
