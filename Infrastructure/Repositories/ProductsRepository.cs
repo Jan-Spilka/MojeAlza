@@ -21,9 +21,10 @@ namespace Infrastructure.Repositories
         /// <summary>
         /// Gets list of products in repository.
         /// </summary>
-        public async Task<List<Product>> GetProducts()
+        /// <param name="cancellationToken">The operation cancellation token.</param>
+        public async Task<List<Product>> GetProducts(CancellationToken cancellationToken)
         {
-            return await this.context.Products.ToListAsync();
+            return await this.context.Products.ToListAsync(cancellationToken);
         }
 
         /// <summary>
@@ -31,20 +32,22 @@ namespace Infrastructure.Repositories
         /// </summary>
         /// <param name="page">The page count.</param>
         /// <param name="pageSize">The page size.</param>
-        public async Task<List<Product>> GetProductsPaged(int page, int pageSize)
+        /// <param name="cancellationToken">The operation cancellation token.</param>
+        public async Task<List<Product>> GetProductsPaged(int page, int pageSize, CancellationToken cancellationToken)
         {
             return await this.context.Products
                 .OrderBy(p => p.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
         }
 
         /// <summary>
         /// Gets product by item unique identifier.
         /// </summary>
         /// <param name="id">The item unique identifier.</param>
-        public async Task<Product?> GetProductById(int id)
+        /// <param name="cancellationToken">The operation cancellation token.</param>
+        public async Task<Product?> GetProductById(int id, CancellationToken cancellationToken)
         {
             return await this.context.Products.FindAsync(id);
         }
@@ -52,20 +55,21 @@ namespace Infrastructure.Repositories
         /// <summary>
         /// Gets products count.
         /// </summary>
-        public async Task<int> GetProductsCount()
+        /// <param name="cancellationToken">The operation cancellation token.</param>
+        public async Task<int> GetProductsCount(CancellationToken cancellationToken)
         {
-            return await this.context.Products.CountAsync();
+            return await this.context.Products.CountAsync(cancellationToken);
         }
 
         /// <summary>
         /// Updates product.
         /// </summary>
         /// <param name="product">The product.</param>
-        /// <returns></returns>
-        public async Task<bool> UpdateProduct(Product product)
+        /// <param name="cancellationToken">The operation cancellation token.</param>
+        public async Task<bool> UpdateProduct(Product product, CancellationToken cancellationToken)
         {
             this.context.Products.Update(product);
-            return await this.context.SaveChangesAsync() > 0;
+            return await this.context.SaveChangesAsync(cancellationToken) > 0;
         }
     }
 }

@@ -28,34 +28,36 @@ namespace Application.Services
         /// <summary>
         /// Gets list of products in repository.
         /// </summary>
-        public async Task<List<ProductDTO>> GetProducts()
+        /// <param name="cancellationToken">The operation cancellation token.</param>
+        public async Task<List<ProductDTO>> GetProducts(CancellationToken cancellationToken)
         {
-            List<Product> products = await this.repository.GetProducts();
+            List<Product> products = await this.repository.GetProducts(cancellationToken);
             return this.mapper.Map<IEnumerable<ProductDTO>>(products).ToList();
         }
 
         /// <summary>
         /// Gets products in repository by specified page.
         /// </summary>
-        /// <param name="page">The page count.</param>
+        /// <param name="pageIndex">The page index.</param>
         /// <param name="pageSize">The page size</param>
-        /// <returns></returns>
-        public async Task<PageResultDTO<ProductDTO>> GetProductsPaged(int page, int pageSize)
+        /// <param name="cancellationToken">The operation cancellation token.</param>
+        public async Task<PaginatedList<ProductDTO>> GetProductsPaged(int pageIndex, int pageSize, CancellationToken cancellationToken)
         {
-            List<Product> products = await this.repository.GetProductsPaged(page, pageSize);
+            List<Product> products = await this.repository.GetProductsPaged(pageIndex, pageSize, cancellationToken);
             List<ProductDTO> productDTOs = this.mapper.Map<IEnumerable<ProductDTO>>(products).ToList();
 
-            int productsCount = await this.repository.GetProductsCount();
+            int productsCount = await this.repository.GetProductsCount(cancellationToken);
             
-            return new PageResultDTO<ProductDTO>(productDTOs, productsCount, pageSize);
+            return new PaginatedList<ProductDTO>(productDTOs, productsCount, pageIndex, pageSize);
         }
 
         /// <summary>
         /// Gets product with specified unique identifier.
         /// </summary>
-        public async Task<ProductDTO?> GetProduct(int id)
+        /// <param name="cancellationToken">The operation cancellation token.</param>
+        public async Task<ProductDTO?> GetProduct(int id, CancellationToken cancellationToken)
         {
-            Product? product = await this.repository.GetProductById(id);
+            Product? product = await this.repository.GetProductById(id, cancellationToken);
 
             if (product == null)
                 return null;
@@ -68,9 +70,10 @@ namespace Application.Services
         /// </summary>
         /// <param name="id">The product unique identifier.</param>
         /// <param name="description">The new description.</param>
-        public async Task<bool> UpdateProductDescription(int id, string? description)
+        /// <param name="cancellationToken">The operation cancellation token.</param>
+        public async Task<bool> UpdateProductDescription(int id, string? description, CancellationToken cancellationToken)
         {
-            Product? product = await this.repository.GetProductById(id);
+            Product? product = await this.repository.GetProductById(id, cancellationToken);
 
             if (product == null)
             {
@@ -86,7 +89,7 @@ namespace Application.Services
             if (!Validator.TryValidateObject(product, validationContext, validationResults, true))
                 throw new ValidationException(validationResults.First().ErrorMessage);
 
-            return await this.repository.UpdateProduct(product);
+            return await this.repository.UpdateProduct(product, cancellationToken);
         }
     }
 }

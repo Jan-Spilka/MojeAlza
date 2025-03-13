@@ -50,7 +50,7 @@ namespace Tests
             // For bigger data samples, we probably would want to specify just some Ids to check
             foreach (Product expectedProduct in InitialDataSeeder.GetProducts())
             {
-                ProductDTO? actualProduct = await this.service.GetProduct(expectedProduct.Id);
+                ProductDTO? actualProduct = await this.service.GetProduct(expectedProduct.Id, CancellationToken.None);
 
                 Assert.That(actualProduct, Is.Not.Null, "Product was not found.");
                 CheckProductData(actualProduct, expectedProduct);
@@ -60,7 +60,7 @@ namespace Tests
         [Test]
         public async Task GetProduct_ShouldReturnNoProduct()
         {
-            ProductDTO? nonExistentProduct = await this.service.GetProduct(-1);
+            ProductDTO? nonExistentProduct = await this.service.GetProduct(-1, CancellationToken.None);
             Assert.That(nonExistentProduct, Is.Null, "Product with ID = -1 should not be found.");
         }
 
@@ -70,13 +70,13 @@ namespace Tests
             int page = 5;
             int pageSize = 7;
 
-            PageResultDTO<ProductDTO> productsPageResult = await this.service.GetProductsPaged(page, pageSize);
+            PaginatedList<ProductDTO> productsPaginatedList = await this.service.GetProductsPaged(page, pageSize, CancellationToken.None);
             Assert.Multiple(() =>
             {
-                Assert.That(productsPageResult, Is.Not.Null, "Page result should not be null.");
-                Assert.That(productsPageResult.Items.Count, Is.EqualTo(7), "Items count does not match.");
-                Assert.That(productsPageResult.PagesCount, Is.EqualTo(8), "Pages count does not match.");
-                Assert.That(productsPageResult.ItemsCountTotal, Is.EqualTo(50), "Items total count does not match.");
+                Assert.That(productsPaginatedList, Is.Not.Null, "Page result should not be null.");
+                Assert.That(productsPaginatedList.Count, Is.EqualTo(7), "Items count does not match.");
+                Assert.That(productsPaginatedList.PagesCount, Is.EqualTo(8), "Pages count does not match.");
+                Assert.That(productsPaginatedList.ItemsCountTotal, Is.EqualTo(50), "Items total count does not match.");
             });
 
             IEnumerable<Product> expectedProducts = InitialDataSeeder.GetProducts()
@@ -86,9 +86,9 @@ namespace Tests
             int i = 0;
             foreach (Product expectedProduct in expectedProducts)
             {
-                ProductDTO actualProduct = productsPageResult.Items[i];
+                ProductDTO actualProduct = productsPaginatedList[i];
 
-                Assert.That(productsPageResult.Items[i].Id, Is.EqualTo(expectedProduct.Id),
+                Assert.That(productsPaginatedList[i].Id, Is.EqualTo(expectedProduct.Id),
                     $"Expected product with ID = '{expectedProduct.Id}' in list of products, there is product with ID = '{actualProduct.Id}' instead.");
 
                 CheckProductData(actualProduct, expectedProduct);
@@ -99,34 +99,38 @@ namespace Tests
         [Test]
         public async Task GetProductsPaged_ShouldReturnNoProducts()
         {
-            int page = 10;
+            int pageIndex = 10;
             int pageSize = 6;
 
-            PageResultDTO<ProductDTO> productsPageResult = await this.service.GetProductsPaged(page, pageSize);
+            PaginatedList<ProductDTO> productsPaginatedList = await this.service.GetProductsPaged(pageIndex, pageSize, CancellationToken.None);
 
-            Assert.That(productsPageResult, Is.Not.Null, "Page result should not be null.");
+            Assert.That(productsPaginatedList, Is.Not.Null, "Page result should not be null.");
             Assert.Multiple(() =>
             {
-                Assert.That(productsPageResult.Items.Count, Is.EqualTo(0), $"There should be no products given for page {page} when page size equals to {pageSize}.");
-                Assert.That(productsPageResult.PagesCount, Is.EqualTo(9), "Pages count does not match.");
-                Assert.That(productsPageResult.ItemsCountTotal, Is.EqualTo(50), "Items total count does not match.");
+                Assert.That(productsPaginatedList.Count, Is.EqualTo(0), $"There should be no products given for page index {pageIndex} when page size equals to {pageSize}.");
+                Assert.That(productsPaginatedList.PageIndex, Is.EqualTo(pageIndex), "Page index should not match.");
+                Assert.That(productsPaginatedList.PagesCount, Is.EqualTo(9), "Pages count does not match.");
+                Assert.That(productsPaginatedList.ItemsCountTotal, Is.EqualTo(50), "Items total count does not match.");
             });
         }
 
         [Test]
         public async Task GetProductsPaged_ShouldReturnTruncatedProducts()
         {
-            int page = 9;
+            int pageIndex = 9;
             int pageSize = 6;
 
-            PageResultDTO<ProductDTO> productsPageResult = await this.service.GetProductsPaged(page, pageSize);
+            PaginatedList<ProductDTO> productsPaginatedList = await this.service.GetProductsPaged(pageIndex, pageSize, CancellationToken.None);
 
-            Assert.That(productsPageResult, Is.Not.Null, "Page result should not be null.");
+            Assert.That(productsPaginatedList, Is.Not.Null, "Page result should not be null.");
             Assert.Multiple(() =>
             {
-                Assert.That(productsPageResult.ItemsCountTotal, Is.EqualTo(50), "Items total count does not match.");
-                Assert.That(productsPageResult.Items.Count, Is.EqualTo(2), $"There should be 2 products given for page {page} when page size equals to {pageSize}.");
-                Assert.That(productsPageResult.PagesCount, Is.EqualTo(9), "Pages count does not match.");
+                Assert.That(productsPaginatedList.ItemsCountTotal, Is.EqualTo(50), "Items total count does not match.");
+                Assert.That(productsPaginatedList.Count, Is.EqualTo(2), $"There should be 2 products given for page {pageIndex} when page size equals to {pageSize}.");
+                Assert.That(productsPaginatedList.PageIndex, Is.EqualTo(pageIndex), "Page index should not match.");
+                Assert.That(productsPaginatedList.PagesCount, Is.EqualTo(9), "Pages count does not match.");
+                Assert.That(productsPaginatedList.HasPreviousPage, Is.EqualTo(true), "List should indicates that it has previous pages.");
+                Assert.That(productsPaginatedList.HasNextPage, Is.EqualTo(false), "List should indicates that it does not have following pages.");
             });
 
             IEnumerable<Product> expectedProducts = InitialDataSeeder.GetProducts().TakeLast(2);
@@ -134,7 +138,7 @@ namespace Tests
             int i = 0;
             foreach (Product expectedProduct in expectedProducts)
             {
-                ProductDTO actualProduct = productsPageResult.Items[i];
+                ProductDTO actualProduct = productsPaginatedList[i];
 
                 Assert.That(actualProduct.Id, Is.EqualTo(expectedProduct.Id),
                     $"Expected product with ID = '{expectedProduct.Id}' in list of products, there is product with ID = '{actualProduct.Id}' instead.");
@@ -147,7 +151,7 @@ namespace Tests
         [Test]
         public async Task GetProducts_ShouldReturnAllProducts()
         {
-            List<ProductDTO> products = await this.service.GetProducts();
+            List<ProductDTO> products = await this.service.GetProducts(CancellationToken.None);
             Product[] expectedProducts = InitialDataSeeder.GetProducts();
 
             Assert.That(products.Count, Is.EqualTo(expectedProducts.Length), "Products count does not match.");
@@ -171,7 +175,7 @@ namespace Tests
 
             try
             {
-                bool updateDescriptionResult = await this.service.UpdateProductDescription(productId, newDescription);
+                bool updateDescriptionResult = await this.service.UpdateProductDescription(productId, newDescription, CancellationToken.None);
                 Assert.That(updateDescriptionResult, Is.True, "Expected UpdateProductDescription to return true, indicating a successful update.");
 
                 Product updatedProduct = this.repository.Products.Single(x => x.Id == productId);
@@ -202,7 +206,7 @@ namespace Tests
                     warningLogWritten = true;
                 }
 
-                bool updateDescriptionResult = await WithLogMessageHandling(() => this.service.UpdateProductDescription(productId, "Test"), OnMessageLog);
+                bool updateDescriptionResult = await WithLogMessageHandling(() => this.service.UpdateProductDescription(productId, "Test", CancellationToken.None), OnMessageLog);
 
                 Assert.That(updateDescriptionResult, Is.False, "Expected UpdateProductDescription to return false, indicating that update operation could not be done.");
                 Assert.That(warningLogWritten, Is.True, "Warning message was not logged.");
