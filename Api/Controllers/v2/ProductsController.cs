@@ -1,4 +1,5 @@
-﻿using Application.DataTransferObjects;
+﻿using System.Net;
+using Application.DataTransferObjects;
 using Application.Interfaces;
 using Asp.Versioning;
 using Core.Models;
@@ -29,6 +30,9 @@ namespace Api.Controllers.v2
         /// <param name="pageSize">The page size</param>
         /// <param name="cancellationToken">The operation cancellation token.</param>
         [HttpGet]
+        [ProducesResponseType(typeof(PaginatedList<ProductDTO>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<PaginatedList<ProductDTO>>> GetProducts(int page = 1, int pageSize = 10, CancellationToken cancellationToken = default)
         {
             if (page < 1 || pageSize < 1)

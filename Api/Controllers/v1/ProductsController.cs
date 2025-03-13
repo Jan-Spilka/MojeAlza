@@ -1,6 +1,8 @@
-﻿using Application.DataTransferObjects;
+﻿using System.Net;
+using Application.DataTransferObjects;
 using Application.Interfaces;
 using Asp.Versioning;
+using Core.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers.v1
@@ -26,7 +28,9 @@ namespace Api.Controllers.v1
         /// </summary>
         /// <param name="cancellationToken">The operation cancellation token.</param>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProducts(CancellationToken cancellationToken)
+        [ProducesResponseType(typeof(List<ProductDTO>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+        public async Task<ActionResult<List<ProductDTO>>> GetProducts(CancellationToken cancellationToken)
         {
             List<ProductDTO> products = await this.productsService.GetProducts(cancellationToken);
             return this.Ok(products);
@@ -38,9 +42,16 @@ namespace Api.Controllers.v1
         /// <param name="id">The product unique identifier.</param>
         /// <param name="cancellationToken">The operation cancellation token.</param>
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(ProductDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<ActionResult<ProductDTO>> GetProduct(int id, CancellationToken cancellationToken)
         {
             ProductDTO? product = await this.productsService.GetProduct(id, cancellationToken);
+
+            if (id < 0)
+                return this.BadRequest("Id has to be bigger than 0.");
 
             if (product == null)
                 return this.NotFound(new { Message = $"Product with ID '{id}' not found" });
@@ -52,6 +63,10 @@ namespace Api.Controllers.v1
         /// Updates product's description.
         /// </summary>
         [HttpPatch("{id}")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UpdateProductDescription(int id, [FromBody] ProductDescriptionDTO dto, CancellationToken cancellationToken)
         {
             if (!this.ModelState.IsValid)
